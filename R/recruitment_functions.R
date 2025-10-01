@@ -39,8 +39,3 @@ spawn_recruitment <- function(h,R0, sigma,teta0){
   (4*h*R0*sigma)/(R0*teta0*(1-h)+(5*h-1)*sigma)
 }
 
-###fishing recruitment
-
-fishing_recruitment <- function(L,Lmin, Lmax,mu,Fm){
-  (1/(1+exp(-((L-Lmin)/mu))))*(1-(1/(1+exp(-((L-Lmax)/mu)))))*Fm
-}
