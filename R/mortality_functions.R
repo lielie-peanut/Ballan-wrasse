@@ -9,3 +9,18 @@ natural_mortality <- function(N,Z){
 fishing_recruitment <- function(L,Lmin, Lmax,mu,Fm){
   (1/(1+exp(-((L-Lmin)/mu))))*(1-(1/(1+exp(-((L-Lmax)/mu)))))*Fm
 }
+
+###catches
+
+catch <- function(Nf,Nm,Fm,Z){
+  #all arguments are vectors, with 
+  #one element of a vector = the value for a given age
+  (Fm/Z)*(1-exp(-Z))*Nf+(Fm/Z)*(1-exp(-Z))*Nm
+}
+
+###yield
+
+yield <- function(Cf,Cm,mm,mf){
+  #all arguments are vectors
+  Cf*mf/1000+Cm*mm/1000
+}
