@@ -1,0 +1,19 @@
+﻿symbol;value;description
+N0;30;initial population size, chosen
+M;0.2;natural mortality rate, assumed
+LinfF;354.4;VB asymptotic body length of females, Leclerq et al. 2014
+KF;0.214;VB growth coefficient of females, leclerq et al. 2014
+t0F;-0.98;VB initial age of females, leclerq et al. 2014
+LinfM;366.6;VB asymptotic body length of males, Leclerq et al. 2014
+KM;0.244;VB growth coefficient of males, Leclerq et al. 2014
+t0M;-3.19;VB initial age males, Leclerq et al. 2014
+alpha0;0.00931;body allometry constant, Leclerq et al. 2014
+alpha1;3.146;body allometry exponent, Leclerq et al. 2014
+b;0.1;sex change shape parameter, estimated through iteration
+deltaLC;115;difference from the mean size at which Pc(L)=0.5, estimated through iteration
+beta0;0.117;fecundity multiplier, Villegas-Rios et al. 2014
+beta1;9.563;fecundity constant, Villegas-Rios et al. 2014
+K;0.5;fertilization steepness, assumed
+R0;1.00E+07;unfished recruitment, chosen
+h;0.4;stock recruitment steepness, assumed
+mu;10;size limit precision, assumed
