@@ -22,4 +22,4 @@ massF <- mass(a0 = params_list$alpha0, a1 = params_list$alpha1,L = Lf)
 massM <- mass(a0 = params_list$alpha0, a1 = params_list$alpha1,L = Lm)
 
 #fecundity
-
+eggs_at_length <- egg_count(Beta0 = params_list$beta0, Beta1 = params_list$beta1, L = Lf) 
