@@ -10,8 +10,16 @@ parameters <- read.csv("data/parameters.csv", stringsAsFactors = F,sep = ";")
 params_list <- as.list(setNames(parameters$value,parameters$symbol))
 print(params_list)
 
-#example run 
+#loading the stable parameters
+
+#growth 
 ages <- 0:30
 Lf <- VB(ages,Linf = params_list$LinfF,k = params_list$KF,t0 = params_list$t0F)
+Lm <- VB(ages,Linf = params_list$LinfM,k = params_list$KM,t0 = params_list$t0M)
 
-plot(ages, Lf, type = "l", xlab = "Age", ylab = "Length (mm)")
+#mass
+massF <- mass(a0 = params_list$alpha0, a1 = params_list$alpha1,L = Lf)
+massM <- mass(a0 = params_list$alpha0, a1 = params_list$alpha1,L = Lm)
+
+#fecundity
+

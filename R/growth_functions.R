@@ -13,5 +13,5 @@ VB <- function(age,Linf,k,t0){
 mass <- function(a0,a1, L){
   #a0 and a1 = parameters defining the mass-length relationship
   #L = length at age
-  a0*L^a1
+  0.001*a0*L^a1
 }

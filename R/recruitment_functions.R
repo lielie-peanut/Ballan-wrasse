@@ -35,7 +35,7 @@ N_M <- function(Nfemales,Nmales,Pchange,Lfemales,Z){
 
 ###fecundity
 
-#calculates the total number of eggs produced in the population
+#calculates the total number of eggs produced by one female
 egg_count <- function(Beta0, Beta1, L){
   #L = length
   #Beta0 and Beta1 = parameters that define the egg count at length relationship
