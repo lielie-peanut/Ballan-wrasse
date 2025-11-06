@@ -19,26 +19,70 @@ Lm <- VB(ages,Linf = params_list$LinfM,k = params_list$KM,t0 = params_list$t0M)
 
 #mass
 massF <- mass(a0 = params_list$alpha0, a1 = params_list$alpha1,L = Lf)
-massM <- mass(a0 = params_list$alpha0, a1 = params_list$alpha1,L = Lm)
+massM <- list(mass(a0 = params_list$alpha0, a1 = params_list$alpha1,L = Lm))
 
 #fecundity
-eggs_at_length <- egg_count(Beta0 = params_list$beta0, Beta1 = params_list$beta1, L = Lf) 
+eggs_at_length <- c(egg_count(Beta0 = params_list$beta0, Beta1 = params_list$beta1, L = Lf)) 
+eggs_at_length[1:5] <- 0
+#we defined that reproduction starts at 5, so the egg count before that is 0
+
+#recruitment to fishing
+fishingF <- list(fishing_recruitment(Lf,Lmin = 120, Lmax = 240, mu = params_list$mu, Fm = 0.3))
+fishingM <- list(fishing_recruitment(Lm,Lmin = 120, Lmax = 240, mu = params_list$mu, Fm = 0.3))
 
 #start settings
-year_countF <- list(age0 = params_list$N0, age1=0, age2=0, age3=0, age4=0, age5=0, age6=0, age7=0,age8=0, age9=0, age10=0, age11=0, age12=0, age13=0, age14=0, age15=0, age16=0, age17=0, age18=0, age19=0, age20=0, age21=0, age22=0, age23=0, age24=0, age25=0, age26=0, age27=0, age28=0, age29=0, age30=0)
-year_countM <- list(age0 = 0, age1=0, age2=0, age3=0, age4=0, age5=0, age6=0, age7=0,age8=0, age9=0, age10=0, age11=0, age12=0, age13=0, age14=0, age15=0, age16=0, age17=0, age18=0, age19=0, age20=0, age21=0, age22=0, age23=0, age24=0, age25=0, age26=0, age27=0, age28=0, age29=0, age30=0)
+year_countF <- c(params_list$N0, rep(0,30))
+year_countM <- c(rep(0,31))
+#mortality rate
+M <- 0.2
+#male depletion ratio
+year_ratio <- 1
 
 #simulation matrices
 years_matrix_F <- matrix(data= NA, nrow= 751, ncol=31, byrow= TRUE, dimnames = list(years=0:750, age=0:30))
 years_matrix_M <- matrix(data= NA, nrow= 751, ncol=31, byrow= TRUE, dimnames = list(years=0:750, age=0:30))
 
-years_matrix_F[1,] <- unlist(year_countF)
-years_matrix_M[1,] <- unlist(year_countM)
+years_matrix_F[1,] <- year_countF
+years_matrix_M[1,] <- year_countM
 #remember that the fish age 0 is column 1 and year 0 is row 1!
 
 ###loop###
 
 for (i in 1:750){
   
+  ###sex change and mortality###
+  
+  #start with sex change: first step is to calculate average length
+  avg_length <- sum(year_countF)*Lf/sum(year_countF)
+  
+  #calculation of the previous year's sex change probability per age group
+  year_sex_change <- sex_change(Lf,Li = avg_length,deltaL = params_list$deltaLC,b = params_list$b)
+  
+  #calculation of this years' numbers
+  year_countF <- N_F(Nfemales = year_countF,Pchange = year_sex_change,Lfemales = Lf,Z = M)
+  year_countM <- N_M(Nfemales = year_countM,Nmales = unlist(year_countM),Pchange = year_sex_change,Lfemales = Lf,Z = M)
+  
+  #modify the counts to account for aging
+  year_countF <- c(0, year_countF[-length(year_countF)])  # shift right, drop oldest
+  year_countM <- c(0, year_countM[-length(year_countM)])
+  
+  ###fecundity###
+  
+  #first step is to calculate the proportion of males (applied only once the 
+  #population is stable, and when there could be a male depletion, 
+  #so once fishing is introduced)
+  
+  #fixing a "stable sex ratio" value
+  if (i==250){
+    ref_sex_ratio <- sum(year_countM)/(sum(year_countF)+sum(year_countM))
+  }
+  #calculating the male depletion compared to a stable population
+  if (i>=250){
+    year_ratio <- male_ratio(Pt = sum(year_countM)/(sum(year_countF)+sum(year_countM)), Pz = ref_sex_ratio)
+  }
+  
 }
 
+
+  
+  

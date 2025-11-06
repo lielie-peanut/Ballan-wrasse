@@ -7,7 +7,7 @@ sex_change <- function(L,Li,deltaL, b){
   #deltaL = difference above the mean at which 
   #the probability of undergoing sex change equals 0.5
   #b = shape parameter
-  1/(1+exp(-b(L-(Li+deltaL))))
+  1/(1+exp(-b*(L-(Li+deltaL))))
 }
 
 ###number of females
@@ -18,7 +18,7 @@ N_F <- function(Nfemales,Pchange,Lfemales,Z){
   #Pchange = the probability of a sex change happening (see sex_change function)
   #Lfemales = length at age of females
   #Z = mortality
-  (Nfemales-(Nfemales*Pchange(Lfemales)))*exp(-Z)
+  (Nfemales-(Nfemales*Pchange*(Lfemales)))*exp(-Z)
 }
 
 ###number of males
@@ -30,7 +30,7 @@ N_M <- function(Nfemales,Nmales,Pchange,Lfemales,Z){
   #Pchange = the probability of a sex change happening (see sex_change function)
   #Lfemales = length at age of females
   #Z = mortality
-  (Nmales+(Nfemales*Pchange(Lfemales)))*exp(-Z)
+  (Nmales+(Nfemales*Pchange*(Lfemales)))*exp(-Z)
 }
 
 ###fecundity
