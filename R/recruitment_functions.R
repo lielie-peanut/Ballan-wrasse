@@ -18,7 +18,7 @@ N_F <- function(Nfemales,Pchange,Lfemales,Z){
   #Pchange = the probability of a sex change happening (see sex_change function)
   #Lfemales = length at age of females
   #Z = mortality
-  (Nfemales-(Nfemales*Pchange*(Lfemales)))*exp(-Z)
+  (Nfemales-(Nfemales*Pchange))*exp(-Z)
 }
 
 ###number of males
@@ -30,7 +30,7 @@ N_M <- function(Nfemales,Nmales,Pchange,Lfemales,Z){
   #Pchange = the probability of a sex change happening (see sex_change function)
   #Lfemales = length at age of females
   #Z = mortality
-  (Nmales+(Nfemales*Pchange*(Lfemales)))*exp(-Z)
+  (Nmales+(Nfemales*Pchange))*exp(-Z)
 }
 
 ###fecundity
@@ -70,6 +70,9 @@ spawn_recruitment <- function(h,R0, sigma,teta0){
   #sigma = number of fertilized eggs
   #teta0 = number of fertilized eggs per recruit 
   #in the unfished stable population
-  (4*h*R0*sigma)/(R0*teta0*(1-h)+(5*h-1)*sigma)
+  num <- 4*h*R0*sigma
+  denom <- R0*teta0*(1-h)+(5*h-1)*sigma
+  if (denom == 0) return(0)
+  return(num / denom)
 }
 

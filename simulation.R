@@ -1,5 +1,8 @@
 ###simulation
 
+#loading packages
+library(ggplot2)
+
 #loading functions from another file
 source("R/mortality_functions.R")
 source("R/growth_functions.R")
@@ -53,14 +56,15 @@ for (i in 1:750){
   ###sex change and mortality###
   
   #start with sex change: first step is to calculate average length
-  avg_length <- sum(year_countF)*Lf/sum(year_countF)
+  avg_length <- (sum(year_countF*Lf)+sum(year_countM*Lm))/sum(year_countF+year_countM)
   
   #calculation of the previous year's sex change probability per age group
   year_sex_change <- sex_change(Lf,Li = avg_length,deltaL = params_list$deltaLC,b = params_list$b)
+  year_sex_change[1:5] <- 0
   
   #calculation of this years' numbers
   year_countF <- N_F(Nfemales = year_countF,Pchange = year_sex_change,Lfemales = Lf,Z = M)
-  year_countM <- N_M(Nfemales = year_countM,Nmales = unlist(year_countM),Pchange = year_sex_change,Lfemales = Lf,Z = M)
+  year_countM <- N_M(Nfemales = year_countF,Nmales = year_countM,Pchange = year_sex_change,Lfemales = Lf,Z = M)
   
   #modify the counts to account for aging
   year_countF <- c(0, year_countF[-length(year_countF)])  # shift right, drop oldest
@@ -81,8 +85,36 @@ for (i in 1:750){
     year_ratio <- male_ratio(Pt = sum(year_countM)/(sum(year_countF)+sum(year_countM)), Pz = ref_sex_ratio)
   }
   
+  #fertilization rate
+  year_fert_rate <- fert_rate(k = params_list$K, xF = year_ratio)
+  
+  #number of fertilized eggs
+  year_fert_eggs <- sum(year_countF*eggs_at_length)*year_fert_rate
+  
+  #fixing a "fertilized egg count per female" value
+  if (i<=250){
+    egg_per_female <- year_fert_eggs/sum(year_countF)
+  }
+  
+  #finally calculate recruitment
+  year_countF[1] <- spawn_recruitment(h = params_list$h, R0 = params_list$R0, sigma = year_fert_eggs, teta0 = egg_per_female)
+  
+  #introduction of this year count in the matrices
+  years_matrix_F[i+1,] <- year_countF
+  years_matrix_M[i+1,] <- year_countM
 }
 
+###figures###
 
+#males vs females graph
+males_vs_females <- data.frame(
+  age = ages,
+  females = years_matrix_F[251,],
+  males = years_matrix_M[251,]
+)
+
+ggplot(males_vs_females, aes(age))+
+  geom_line(aes(y=females, colour = "females"))+
+  geom_line(aes(y=males, colour="males"))
   
   
