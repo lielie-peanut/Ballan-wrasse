@@ -14,6 +14,6 @@ deltaLC;115;difference from the mean size at which Pc(L)=0.5, estimated through 
 beta0;0.117;fecundity multiplier, Villegas-Rios et al. 2014
 beta1;9.563;fecundity constant, Villegas-Rios et al. 2014
 K;0.5;fertilization steepness, assumed
-R0;1.00E+07;unfished recruitment, chosen
+R0;1.00E+06;unfished recruitment, chosen
 h;0.4;stock recruitment steepness, assumed
 mu;10;size limit precision, assumed
