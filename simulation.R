@@ -30,8 +30,8 @@ eggs_at_length[1:5] <- 0
 #we defined that reproduction starts at 5, so the egg count before that is 0
 
 #recruitment to fishing
-fishingF <- list(fishing_recruitment(Lf,Lmin = 120, Lmax = 240, mu = params_list$mu, Fm = 0.3))
-fishingM <- list(fishing_recruitment(Lm,Lmin = 120, Lmax = 240, mu = params_list$mu, Fm = 0.3))
+fishingF <- c(fishing_recruitment(Lf,Lmin = 120, Lmax = 240, mu = params_list$mu, Fm = 0.3))
+fishingM <- c(fishing_recruitment(Lm,Lmin = 120, Lmax = 240, mu = params_list$mu, Fm = 0.3))
 
 #start settings
 year_countF <- c(params_list$N0, rep(0,30))
@@ -64,10 +64,16 @@ for (i in 1:750){
   year_sex_change <- sex_change(Lf,Li = avg_length,deltaL = params_list$deltaLC,b = params_list$b)
   year_sex_change[1:5] <- 0
   
-  #calculation of this years' numbers
+  #calculation of this years' numbers (tzking into account fishing mortality after the first 250 years)
   year_countF_now <- year_countF
-  year_countF <- N_F(Nfemales = year_countF,Pchange = year_sex_change,Lfemales = Lf,Z = M)
-  year_countM <- N_M(Nfemales = year_countF_now,Nmales = year_countM,Pchange = year_sex_change,Lfemales = Lf,Z = M)
+  if (i<=250){
+    year_countF <- N_F(Nfemales = year_countF,Pchange = year_sex_change,Lfemales = Lf,Z = M)
+    year_countM <- N_M(Nfemales = year_countF_now,Nmales = year_countM,Pchange = year_sex_change,Lfemales = Lf,Z = M)
+  } else{
+    year_countF <- N_F(Nfemales = year_countF,Pchange = year_sex_change,Lfemales = Lf,Z = M+fishingF)
+    year_countM <- N_M(Nfemales = year_countF_now,Nmales = year_countM,Pchange = year_sex_change,Lfemales = Lf,Z = M+fishingM)
+  }
+
   
   #modify the counts to account for aging
   year_countF <- c(0, year_countF[-length(year_countF)])  # shift right, drop oldest
@@ -110,6 +116,7 @@ for (i in 1:750){
   #introduction of this year count in the matrices
   years_array[i+1,,1] <- year_countF
   years_array[i+1,,2] <- year_countM
+  
 }
 
 ###figures###
@@ -117,8 +124,8 @@ for (i in 1:750){
 #males vs females graph
 males_vs_females <- data.frame(
   age = ages,
-  females = years_array[251,,1],
-  males = years_array[251,,2]
+  females = years_array[750,,1],
+  males = years_array[750,,2]
 )
 
 ggplot(males_vs_females, aes(age))+
