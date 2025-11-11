@@ -39,7 +39,7 @@ N_M <- function(Nfemales,Nmales,Pchange,Lfemales,Z){
 egg_count <- function(Beta0, Beta1, L){
   #L = length
   #Beta0 and Beta1 = parameters that define the egg count at length relationship
-  exp(Beta0*L+Beta1)
+  exp(Beta0*L/10+Beta1)
 }
 
 ###fertilization

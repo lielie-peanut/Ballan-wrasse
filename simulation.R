@@ -45,8 +45,10 @@ year_ratio <- 1
 years_matrix_F <- matrix(data= NA, nrow= 751, ncol=31, byrow= TRUE, dimnames = list(years=0:750, age=0:30))
 years_matrix_M <- matrix(data= NA, nrow= 751, ncol=31, byrow= TRUE, dimnames = list(years=0:750, age=0:30))
 
-years_matrix_F[1,] <- year_countF
-years_matrix_M[1,] <- year_countM
+years_array <- array(data = NA, dim = c(751, 31, 2),dimnames = list(years = c(0:750),ages, matrices = c("females", "males")))
+
+years_array[1,,1] <- year_countF
+years_array[1,,2] <- year_countM
 #remember that the fish age 0 is column 1 and year 0 is row 1!
 
 ###loop###
@@ -63,8 +65,9 @@ for (i in 1:750){
   year_sex_change[1:5] <- 0
   
   #calculation of this years' numbers
+  year_countF_now <- year_countF
   year_countF <- N_F(Nfemales = year_countF,Pchange = year_sex_change,Lfemales = Lf,Z = M)
-  year_countM <- N_M(Nfemales = year_countF,Nmales = year_countM,Pchange = year_sex_change,Lfemales = Lf,Z = M)
+  year_countM <- N_M(Nfemales = year_countF_now,Nmales = year_countM,Pchange = year_sex_change,Lfemales = Lf,Z = M)
   
   #modify the counts to account for aging
   year_countF <- c(0, year_countF[-length(year_countF)])  # shift right, drop oldest
@@ -93,15 +96,20 @@ for (i in 1:750){
   
   #fixing a "fertilized egg count per female" value
   if (i<=250){
-    egg_per_female <- year_fert_eggs/sum(year_countF)
+    if (sum(year_countF[6:31]==0)){
+      egg_per_female <- 0
+    }
+    else{
+      egg_per_female <- year_fert_eggs/sum(year_countF[6:31])
+    }
   }
   
   #finally calculate recruitment
   year_countF[1] <- spawn_recruitment(h = params_list$h, R0 = params_list$R0, sigma = year_fert_eggs, teta0 = egg_per_female)
   
   #introduction of this year count in the matrices
-  years_matrix_F[i+1,] <- year_countF
-  years_matrix_M[i+1,] <- year_countM
+  years_array[i+1,,1] <- year_countF
+  years_array[i+1,,2] <- year_countM
 }
 
 ###figures###
@@ -109,8 +117,8 @@ for (i in 1:750){
 #males vs females graph
 males_vs_females <- data.frame(
   age = ages,
-  females = years_matrix_F[251,],
-  males = years_matrix_M[251,]
+  females = years_array[251,,1],
+  males = years_array[251,,2]
 )
 
 ggplot(males_vs_females, aes(age))+
