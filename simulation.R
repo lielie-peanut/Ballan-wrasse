@@ -22,7 +22,7 @@ Lm <- VB(ages,Linf = params_list$LinfM,k = params_list$KM,t0 = params_list$t0M)
 
 #mass
 massF <- mass(a0 = params_list$alpha0, a1 = params_list$alpha1,L = Lf)
-massM <- list(mass(a0 = params_list$alpha0, a1 = params_list$alpha1,L = Lm))
+massM <- mass(a0 = params_list$alpha0, a1 = params_list$alpha1,L = Lm)
 
 #fecundity
 eggs_at_length <- c(egg_count(Beta0 = params_list$beta0, Beta1 = params_list$beta1, L = Lf)) 
@@ -42,14 +42,15 @@ M <- 0.2
 year_ratio <- 1
 
 #simulation matrices
-years_matrix_F <- matrix(data= NA, nrow= 751, ncol=31, byrow= TRUE, dimnames = list(years=0:750, age=0:30))
-years_matrix_M <- matrix(data= NA, nrow= 751, ncol=31, byrow= TRUE, dimnames = list(years=0:750, age=0:30))
-
 years_array <- array(data = NA, dim = c(751, 31, 2),dimnames = list(years = c(0:750),ages, matrices = c("females", "males")))
 
 years_array[1,,1] <- year_countF
 years_array[1,,2] <- year_countM
-#remember that the fish age 0 is column 1 and year 0 is row 1!
+
+#empty vectors for catch and yield
+catch_evolution <- c()
+yield_evolution <- c()
+
 
 ###loop###
 
@@ -117,6 +118,15 @@ for (i in 1:750){
   years_array[i+1,,1] <- year_countF
   years_array[i+1,,2] <- year_countM
   
+  ###catch and yield###
+  if (i>=250){
+    year_catchF <- catch(N = year_countF,Fm = fishingF, Z = fishingF+M)
+    year_catchM <- catch(N = year_countM,Fm = fishingM, Z = fishingF+M)
+    year_catch <- sum(year_catchM)+sum(year_catchF)
+    catch_evolution <- append(x = catch_evolution,values = year_catch)
+    year_yield <- sum(yield(Cf = year_catchF,Cm = year_catchM, mm = massM, mf = massF))
+    yield_evolution <- append(x = yield_evolution,values = year_yield)
+  }
 }
 
 ###figures###

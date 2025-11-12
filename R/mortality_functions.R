@@ -25,7 +25,7 @@ catch <- function(N,Fm,Z){
   #N = Number of individuals (males or females)
   #Fm = fishing recruitment at age
   #Z = total mortality at age (natural + fishing)
-  (Fm/Z)*(1-exp(-Z))*Nf
+  (Fm/Z)*(1-exp(-Z))*N
 }
 
 ###yield
