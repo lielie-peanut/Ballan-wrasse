@@ -1,13 +1,3 @@
-###mortality
-
-#outputs the number of fish surviving to the next year 
-#(only when sex change is not included)
-natural_mortality <- function(N,Z){
-  #N = number of fish
-  #Z= mortality rate (natural + fishing)
-  N*exp(-Z)
-}
-
 ###fishing recruitment
 
 fishing_recruitment <- function(L,Lmin, Lmax,mu,Fm){
