@@ -5,14 +5,13 @@ library(ggplot2)
 
 simulate_population <- function(LminS,LmaxS,FS){
   #loading functions from another file
-  source("mortality_functions.R")
-  source("growth_functions.R")
-  source("recruitment_functions.R")
+  source("R/mortality_functions.R")
+  source("R/growth_functions.R")
+  source("R/recruitment_functions.R")
   
   #loading data
   parameters <- read.csv("data/parameters.csv", stringsAsFactors = F,sep = ";")
   params_list <- as.list(setNames(parameters$value,parameters$symbol))
-  print(params_list)
   
   #calculating the stable parameters
   
@@ -49,6 +48,7 @@ simulate_population <- function(LminS,LmaxS,FS){
   years_array[1,,2] <- year_countM
   
   #empty vectors for catch and yield
+  popsize_evolution <- c()
   catch_evolution <- c()
   yield_evolution <- c()
   
@@ -119,8 +119,10 @@ simulate_population <- function(LminS,LmaxS,FS){
     years_array[i+1,,1] <- year_countF
     years_array[i+1,,2] <- year_countM
     
-    ###catch and yield###
+    ###pop size, catch and yield###
     if (i>=250){
+      year_popsize <- sum(sum(years_array[i+1,,1])+sum(years_array[i+1,,2]))
+      popsize_evolution <- append(popsize_evolution, values = year_popsize)
       year_catchF <- catch(N = year_countF,Fm = fishingF, Z = fishingF+M)
       year_catchM <- catch(N = year_countM,Fm = fishingM, Z = fishingF+M)
       year_catch <- sum(year_catchM)+sum(year_catchF)
@@ -129,7 +131,7 @@ simulate_population <- function(LminS,LmaxS,FS){
       yield_evolution <- append(x = yield_evolution,values = year_yield)
     }
   }
-  return (results <- list(years_array,catch_evolution,yield_evolution))
+  return (results <- list(popsize_evolution,catch_evolution,yield_evolution))
 }
 
 ###figures###
