@@ -126,7 +126,7 @@ simulate_population <- function(LminS,LmaxS,FS){
       year_popsize <- sum(sum(years_array[i+1,,1])+sum(years_array[i+1,,2]))
       popsize_evolution <- append(popsize_evolution, values = year_popsize)
       year_catchF <- catch(N = year_countF,Fm = fishingF, Z = fishingF+M)
-      year_catchM <- catch(N = year_countM,Fm = fishingM, Z = fishingF+M)
+      year_catchM <- catch(N = year_countM,Fm = fishingM, Z = fishingM+M)
       year_catch <- sum(year_catchM)+sum(year_catchF)
       catch_evolution <- append(x = catch_evolution,values = year_catch)
       year_yield <- sum(yield(Cf = year_catchF,Cm = year_catchM, mm = massM, mf = massF))
@@ -135,6 +135,7 @@ simulate_population <- function(LminS,LmaxS,FS){
   }
   return (results <- list(popsize_evolution,catch_evolution,yield_evolution))
 }
+
 
 ###figures###
 
