@@ -33,7 +33,7 @@ eggs_at_length[1:5] <- 0
 year_countF <- c(params_list$N0, rep(0,30))
 year_countM <- c(rep(0,31))
 #mortality rate
-M <- 0.2
+M <- params_list$M
 #male depletion ratio
 year_ratio <- 1
 
@@ -55,7 +55,7 @@ simulate_population <- function(LminS,LmaxS,FS){
   
   #calculate recruitment to fishing
   fishingF <- c(fishing_recruitment(Lf,Lmin = LminS, Lmax = LmaxS, mu = params_list$mu, Fm = FS))
-  fishingM <- c(fishing_recruitment(Lm,Lmin = 120, Lmax = LmaxS, mu = params_list$mu, Fm = FS))
+  fishingM <- c(fishing_recruitment(Lm,Lmin = LminS, Lmax = LmaxS, mu = params_list$mu, Fm = FS))
 
   for (i in 1:750){
     
@@ -68,7 +68,7 @@ simulate_population <- function(LminS,LmaxS,FS){
     year_sex_change <- sex_change(Lf,Li = avg_length,deltaL = params_list$deltaLC,b = params_list$b)
     year_sex_change[1:5] <- 0
     
-    #calculation of this years' numbers (tzking into account fishing mortality after the first 250 years)
+    #calculation of this years' numbers (taking into account fishing mortality after the first 250 years)
     year_countF_now <- year_countF
     if (i<=250){
       year_countF <- N_F(Nfemales = year_countF,Pchange = year_sex_change,Lfemales = Lf,Z = M)
