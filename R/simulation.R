@@ -3,58 +3,60 @@
 #loading packages
 library(ggplot2)
 
+#loading functions from another file
+source("R/mortality_functions.R")
+source("R/growth_functions.R")
+source("R/recruitment_functions.R")
+
+#loading data
+parameters <- read.csv("data/parameters.csv", stringsAsFactors = F,sep = ";")
+params_list <- as.list(setNames(parameters$value,parameters$symbol))
+
+#calculating the stable parameters
+
+#growth 
+ages <- 0:30
+Lf <- VB(ages,Linf = params_list$LinfF,k = params_list$KF,t0 = params_list$t0F)
+Lm <- VB(ages,Linf = params_list$LinfM,k = params_list$KM,t0 = params_list$t0M)
+
+#mass
+massF <- mass(a0 = params_list$alpha0, a1 = params_list$alpha1,L = Lf)
+massM <- mass(a0 = params_list$alpha0, a1 = params_list$alpha1,L = Lm)
+
+#fecundity
+eggs_at_length <- c(egg_count(Beta0 = params_list$beta0, Beta1 = params_list$beta1, L = Lf)) 
+eggs_at_length[1:5] <- 0
+#we defined that reproduction starts at 5, so the egg count before that is 0
+
+
+#start settings
+year_countF <- c(params_list$N0, rep(0,30))
+year_countM <- c(rep(0,31))
+#mortality rate
+M <- 0.2
+#male depletion ratio
+year_ratio <- 1
+
+#simulation matrices
+years_array <- array(data = NA, dim = c(751, 31, 2),dimnames = list(years = c(0:750),ages, matrices = c("females", "males")))
+
+years_array[1,,1] <- year_countF
+years_array[1,,2] <- year_countM
+
+#empty vectors for catch and yield
+popsize_evolution <- c()
+catch_evolution <- c()
+yield_evolution <- c()
+
+
+###the simulation function###
+
 simulate_population <- function(LminS,LmaxS,FS){
-  #loading functions from another file
-  source("R/mortality_functions.R")
-  source("R/growth_functions.R")
-  source("R/recruitment_functions.R")
   
-  #loading data
-  parameters <- read.csv("data/parameters.csv", stringsAsFactors = F,sep = ";")
-  params_list <- as.list(setNames(parameters$value,parameters$symbol))
-  
-  #calculating the stable parameters
-  
-  #growth 
-  ages <- 0:30
-  Lf <- VB(ages,Linf = params_list$LinfF,k = params_list$KF,t0 = params_list$t0F)
-  Lm <- VB(ages,Linf = params_list$LinfM,k = params_list$KM,t0 = params_list$t0M)
-  
-  #mass
-  massF <- mass(a0 = params_list$alpha0, a1 = params_list$alpha1,L = Lf)
-  massM <- mass(a0 = params_list$alpha0, a1 = params_list$alpha1,L = Lm)
-  
-  #fecundity
-  eggs_at_length <- c(egg_count(Beta0 = params_list$beta0, Beta1 = params_list$beta1, L = Lf)) 
-  eggs_at_length[1:5] <- 0
-  #we defined that reproduction starts at 5, so the egg count before that is 0
-  
-  #recruitment to fishing
+  #calculate recruitment to fishing
   fishingF <- c(fishing_recruitment(Lf,Lmin = LminS, Lmax = LmaxS, mu = params_list$mu, Fm = FS))
   fishingM <- c(fishing_recruitment(Lm,Lmin = 120, Lmax = LmaxS, mu = params_list$mu, Fm = FS))
-  
-  #start settings
-  year_countF <- c(params_list$N0, rep(0,30))
-  year_countM <- c(rep(0,31))
-  #mortality rate
-  M <- 0.2
-  #male depletion ratio
-  year_ratio <- 1
-  
-  #simulation matrices
-  years_array <- array(data = NA, dim = c(751, 31, 2),dimnames = list(years = c(0:750),ages, matrices = c("females", "males")))
-  
-  years_array[1,,1] <- year_countF
-  years_array[1,,2] <- year_countM
-  
-  #empty vectors for catch and yield
-  popsize_evolution <- c()
-  catch_evolution <- c()
-  yield_evolution <- c()
-  
-  
-  ###loop###
-  
+
   for (i in 1:750){
     
     ###sex change and mortality###
