@@ -91,11 +91,11 @@ simulate_population <- function(LminS,LmaxS,FS){
     
     #fixing a "stable sex ratio" value
     if (i==250){
-      ref_sex_ratio <- sum(year_countM)/(sum(year_countF)+sum(year_countM))
+      ref_sex_ratio <- sum(year_countM[6:31])/(sum(year_countF[6:31])+sum(year_countM[6:31]))
     }
     #calculating the male depletion compared to a stable population
     if (i>=250){
-      year_ratio <- male_ratio(Pt = sum(year_countM)/(sum(year_countF)+sum(year_countM)), Pz = ref_sex_ratio)
+      year_ratio <- male_ratio(Pt = sum(year_countM[6:31])/(sum(year_countF[6:31])+sum(year_countM[6:31])), Pz = ref_sex_ratio)
     }
     
     #fertilization rate
@@ -110,7 +110,7 @@ simulate_population <- function(LminS,LmaxS,FS){
         egg_per_female <- 0
       }
       else{
-        egg_per_female <- year_fert_eggs/sum(year_countF[6:31])
+        egg_per_recruit <- year_fert_eggs/params_list$R0
       }
     }
     
