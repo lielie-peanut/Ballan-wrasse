@@ -33,12 +33,14 @@ pop_size <- as.data.frame(
 )
 pop_size$mortality_rate <- as.numeric(row.names(pop_size))
 
-ggplot(data = pop_size, aes(x = mortality_rate)) +
-  geom_line(aes(y = `England Devon and Severn IFCA`, colour = "England Devon and Severn IFCA")) +
-  geom_line(aes(y = Norway, colour = "Norway")) +
-  geom_line(aes(y = Scotland, colour = "Scotland")) +
-  geom_line(aes(y = Sweden, colour = "Sweden")) +
-  geom_line(aes(y = theoretical, colour = "theoretical"))
+popsize_plot <- ggplot(data = pop_size, aes(x = mortality_rate)) +
+  geom_line(aes(y = `England Devon and Severn IFCA`, colour = "England 180-260")) +
+  geom_line(aes(y = Norway, colour = "Norway 220-280")) +
+  geom_line(aes(y = Scotland, colour = "Scotland 120-240")) +
+  geom_line(aes(y = Sweden, colour = "Sweden150-300")) +
+  geom_line(aes(y = theoretical, colour = "Theoretical 290-350"))+
+  labs(title="Change in population size with varying F" ,colour= "Size limit", x= "Fishing mortality rate (F)", y= "Population size")
+
 
 #catch by mortality rate
 catch_plot <- as.data.frame(
@@ -47,12 +49,14 @@ catch_plot <- as.data.frame(
 )
 catch_plot$mortality_rate <- as.numeric(row.names(pop_size))
 
-ggplot(data = catch_plot, aes(x = mortality_rate)) +
-  geom_line(aes(y = `England Devon and Severn IFCA`, colour = "England Devon and Severn IFCA")) +
-  geom_line(aes(y = Norway, colour = "Norway")) +
-  geom_line(aes(y = Scotland, colour = "Scotland")) +
-  geom_line(aes(y = Sweden, colour = "Sweden")) +
-  geom_line(aes(y = theoretical, colour = "theoretical"))
+catch_plot_plot <- ggplot(data = catch_plot, aes(x = mortality_rate)) +
+  geom_line(aes(y = `England Devon and Severn IFCA`, colour = "England 180-260")) +
+  geom_line(aes(y = Norway, colour = "Norway 220-280")) +
+  geom_line(aes(y = Scotland, colour = "Scotland 120-240")) +
+  geom_line(aes(y = Sweden, colour = "Sweden150-300")) +
+  geom_line(aes(y = theoretical, colour = "Theoretical 290-350"))+
+  labs(title="Change in catch with varying F" ,colour= "Size limit", x= "Fishing mortality rate (F)", y= "Catch")
+
 
 #yield by mortality rate
 yield_plot <- as.data.frame(
@@ -61,9 +65,10 @@ yield_plot <- as.data.frame(
 )
 yield_plot$mortality_rate <- as.numeric(row.names(pop_size))
 
-ggplot(data = yield_plot, aes(x = mortality_rate)) +
-  geom_line(aes(y = `England Devon and Severn IFCA`, colour = "England Devon and Severn IFCA")) +
-  geom_line(aes(y = Norway, colour = "Norway")) +
-  geom_line(aes(y = Scotland, colour = "Scotland")) +
-  geom_line(aes(y = Sweden, colour = "Sweden")) +
-  geom_line(aes(y = theoretical, colour = "theoretical"))
+yield_plot_plot <- ggplot(data = yield_plot, aes(x = mortality_rate)) +
+  geom_line(aes(y = `England Devon and Severn IFCA`, colour = "England 180-260")) +
+  geom_line(aes(y = Norway, colour = "Norway 220-280")) +
+  geom_line(aes(y = Scotland, colour = "Scotland 120-240")) +
+  geom_line(aes(y = Sweden, colour = "Sweden150-300")) +
+  geom_line(aes(y = theoretical, colour = "Theoretical 290-350"))+
+  labs(title="Change in yield with varying F" ,colour= "Size limit", x= "Fishing mortality rate (F)", y= "Yield (kg)")
