@@ -107,7 +107,7 @@ simulate_population <- function(LminS,LmaxS,FS){
     #fixing a "fertilized egg count per female" value
     if (i<=250){
       if (sum(year_countF[6:31]==0)){
-        egg_per_female <- 0
+        egg_per_recruit <- 0
       }
       else{
         egg_per_recruit <- year_fert_eggs/params_list$R0
@@ -115,7 +115,7 @@ simulate_population <- function(LminS,LmaxS,FS){
     }
     
     #finally calculate recruitment
-    year_countF[1] <- spawn_recruitment(h = params_list$h, R0 = params_list$R0, sigma = year_fert_eggs, teta0 = egg_per_female)
+    year_countF[1] <- spawn_recruitment(h = params_list$h, R0 = params_list$R0, sigma = year_fert_eggs, teta0 = egg_per_recruit)
     
     #introduction of this year count in the matrices
     years_array[i+1,,1] <- year_countF

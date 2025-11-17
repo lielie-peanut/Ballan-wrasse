@@ -8,9 +8,9 @@ size_limits <- read.csv("data/size_limits.csv", stringsAsFactors = F,sep = ";")
 fishing_mortality_rates <- seq(from = 0.05, to = 1, by = 0.05)
 
 #creating arrays to store data
-size_array <- array(data = NA, dim = c(501, 20, length(size_limits$Lmin)),dimnames = list(years = c(0:500),mortality_rate = fishing_mortality_rates, size_lim = size_limits$location))
-catch_array <- array(data = NA, dim = c(501, 20, length(size_limits$Lmin)),dimnames = list(years = c(0:500),mortality_rate = fishing_mortality_rates, size_lim = size_limits$location))
-yield_array <- array(data = NA, dim = c(501, 20, length(size_limits$Lmin)),dimnames = list(years = c(0:500),mortality_rate = fishing_mortality_rates, size_lim = size_limits$location))
+size_array <- array(data = NA, dim = c(501, length(fishing_mortality_rates), length(size_limits$Lmin)),dimnames = list(years = c(0:500),mortality_rate = fishing_mortality_rates, size_lim = size_limits$location))
+catch_array <- array(data = NA, dim = c(501, length(fishing_mortality_rates), length(size_limits$Lmin)),dimnames = list(years = c(0:500),mortality_rate = fishing_mortality_rates, size_lim = size_limits$location))
+yield_array <- array(data = NA, dim = c(501, length(fishing_mortality_rates), length(size_limits$Lmin)),dimnames = list(years = c(0:500),mortality_rate = fishing_mortality_rates, size_lim = size_limits$location))
 
 #run the simulation and fill the arrays according to what was done
 for (i in 1:length(size_limits$Lmin)){
