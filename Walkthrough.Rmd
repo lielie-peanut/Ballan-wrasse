@@ -1,0 +1,62 @@
+---
+title: "Walkthrough"
+author: "Laélie Huet"
+date: "`r Sys.Date()`"
+output: 
+html_document:
+  keep_md: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r import_functions, echo=FALSE}
+source("R/simulation.R")
+```
+
+## Introduction
+
+This age-class model was built to reproduce a biologically realistic ballan wrasse population.
+
+The Ballan wrasse is a protogynous hermaphroditic fish species that has a haremic social system, with one male for multiple females. All individuals are born females and join a harem once they attain reproductive age. It appears that when the male of the harem dies, the oldest or biggest females are the ones to transition to become male. Because of this particularity, the population also presents a skewed sex ratio, with somewhere around 20% of the population being male.
+
+this model was adapted to account for these particularities, using published equations.
+
+## Adaptations
+
+### Growth
+
+Because only the biggest females transition to become males, there are two different Von Bertalanffy curves for males and females. The parameters for these were taken from Leclerq et al. (2014). Here are the two curves:
+
+```{r VB, echo=FALSE}
+VB_plot <- data.frame(age = ages, Length_females = Lf, Length_males = Lm)
+
+ggplot(data = VB_plot, aes(x = age))+
+  geom_line(aes(y = Length_females, colour = "Female"))+
+  geom_line(aes(y= Length_males, colour = "Male"))+
+  labs(colour= "Sex", y= "Length (mm)")
+
+```
+
+While the parameters for the body allometry do not change between males and females, because the VB curve does, the output at age is also different:
+
+```{r body_allometry, echo=FALSE}
+BA_plot <- data.frame(age = ages, weight_females = massF, weight_males = massM)
+
+ggplot(data = BA_plot, aes(x = age))+
+  geom_line(aes(y = weight_females, colour = "Female"))+
+  geom_line(aes(y= weight_males, colour = "Male"))+
+  labs(colour= "Sex", y= "Weight (g)")
+
+```
+
+Note: Here it appears that males are born already quite heavy, but since no individuals are directly born as males, this is actually fine.
+
+Because of these differences in length and weight, all following equations that use either of those variables were calculated separately for males and females.
+
+### Sex change
+
+As sex change seems to depend on sex ratio and size for the species, I decided to go with an equation that uses the difference from the average size to dictate sex change, from
+
+It shortly introduces the reasons why this model is built as it is based on the model species' particularities, then goes over its construction and functioning, and details the results.
