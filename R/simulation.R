@@ -133,23 +133,8 @@ simulate_population <- function(LminS,LmaxS,FS){
       yield_evolution <- append(x = yield_evolution,values = year_yield)
     }
   }
-  return (results <- list(popsize_evolution,catch_evolution,yield_evolution))
+  count_all_ages <- apply(years_array[1:251,,], 1, sum)
+  return (results <- list(popsize_evolution,catch_evolution,yield_evolution, age_counts = years_array[250,,], count_all_ages))
 }
-
-
-###figures###
-
-#males vs females graph
-males_vs_females <- data.frame(
-  age = ages,
-  females = years_array[750,,1],
-  males = years_array[750,,2]
-)
-
-ggplot(males_vs_females, aes(age))+
-  geom_line(aes(y=females, colour = "females"))+
-  geom_line(aes(y=males, colour="males"))
-  
-#catch graph
 
   
