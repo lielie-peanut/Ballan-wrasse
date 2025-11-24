@@ -36,6 +36,8 @@ year_countM <- c(rep(0,31))
 M <- params_list$M
 #male depletion ratio
 year_ratio <- 1
+#eggs per recruit
+phi0 <- NA
 
 #simulation matrices
 years_array <- array(data = NA, dim = c(751, 31, 2),dimnames = list(years = c(0:750),ages, matrices = c("females", "males")))
@@ -104,19 +106,19 @@ simulate_population <- function(LminS,LmaxS,FS){
     #number of fertilized eggs
     year_fert_eggs <- sum(year_countF*eggs_at_length)*year_fert_rate
     
-    #fixing a "fertilized egg count per female" value
-    if (i<=250){
-      if (sum(year_countF[6:31]==0)){
-        egg_per_recruit <- 0
+    #fixing a "fertilized egg count per recruit" value
+    if (i<250){
+      year_countF[1] <- params_list$R0
       }
-      else{
-        egg_per_recruit <- year_fert_eggs/params_list$R0
+    #once the burn-in is finished, compute phi0
+    else{
+      if (is.na(phi0)){
+        phi0 <- year_fert_eggs/params_list$R0
       }
-    }
-    
-    #finally calculate recruitment
-    year_countF[1] <- spawn_recruitment(h = params_list$h, R0 = params_list$R0, sigma = year_fert_eggs, teta0 = egg_per_recruit)
-    
+      #calculate recruitment every year once the burn-in is finished
+      year_countF[1] <- spawn_recruitment(h = params_list$h, R0 = params_list$R0, sigma = year_fert_eggs, teta0 = phi0)
+      }
+
     #introduction of this year count in the matrices
     years_array[i+1,,1] <- year_countF
     years_array[i+1,,2] <- year_countM

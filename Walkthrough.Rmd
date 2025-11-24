@@ -100,7 +100,7 @@ Where $\phi_0$ is the number of fertilized eggs per recruit in the unfished stab
 
 Using fertilized egg counts allows to take into account the fertilization rate, which will be dependent on the difference between the current male ratio and the male ratio in a stable population. For more detailed information on the equations used for recruitment, please refer to the original report.
 
-Here is the resulting population growth when we start the simulation:
+Here is the resulting population growth when we start the simulation, with forced recruitment equal to R0 during the burn-in.
 
 ```{r pop_growth, echo= FALSE}
 plot_year_count <- data.frame(year= 0:250,count = simulation[5])
@@ -109,7 +109,7 @@ plot(plot_year_count)
 ```
 ### Fishing recuitment, catch and yield
 
-Because we have males and females of different sizes, fishing recruitment, catch, yield, as well as mortality has to be calculated separately for females and males before being summed up. For detailson the equations see the original report.
+Because we have males and females of different sizes, fishing recruitment, catch, yield, as well as mortality has to be calculated separately for females and males before being summed up. For details on the equations see the original report.
 
 ## Parametrization
 
