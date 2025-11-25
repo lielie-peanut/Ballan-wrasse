@@ -2,9 +2,7 @@
 title: "Walkthrough"
 author: "Laélie Huet"
 date: "`r Sys.Date()`"
-output: 
-html_document:
-  keep_md: true
+output: md_document
 ---
 
 ```{r setup, include=FALSE}
@@ -17,7 +15,7 @@ source("results/results_production.R")
 
 ## Introduction
 
-This age-class model was built to reproduce a biologically realistic ballan wrasse population.
+This age-class model was built to reproduce a biologically realistic Ballan wrasse population.
 
 The Ballan wrasse is a protogynous hermaphroditic fish species that has a haremic social system, with one male for multiple females. All individuals are born females and join a harem once they attain reproductive age. It appears that when the male of the harem dies, the oldest or biggest females are the ones to transition to become male. Because of this particularity, the population also presents a skewed sex ratio, with somewhere around 20% of the population being male.
 
@@ -100,13 +98,19 @@ Where $\phi_0$ is the number of fertilized eggs per recruit in the unfished stab
 
 Using fertilized egg counts allows to take into account the fertilization rate, which will be dependent on the difference between the current male ratio and the male ratio in a stable population. For more detailed information on the equations used for recruitment, please refer to the original report.
 
-Here is the resulting population growth when we start the simulation, with forced recruitment equal to R0 during the burn-in.
+Here is the resulting population growth when we start the simulation, followed by population maintenance, with forced recruitment equal to R0 during the burn-in (aka, the initialization period needed to reach a stable population).
 
 ```{r pop_growth, echo= FALSE}
-plot_year_count <- data.frame(year= 0:250,count = simulation[5])
-plot(plot_year_count)
+plot_year_count <- data.frame(year= 0:250, pop_count= simulation[5][[1]])
+
+ggplot(plot_year_count, aes(year))+
+  geom_line(aes(y=pop_count))+
+  labs(y= "number of individuals")
 
 ```
+
+**Note:** the burn-in length was originally set this high because the original model was a colonization model, so it took longer to stabilize. I then realised it was better to start the model without a realistic colonization event. The burn-in period was not adjusted after this, but I expect the impact to be minimal on the results.
+
 ### Fishing recuitment, catch and yield
 
 Because we have males and females of different sizes, fishing recruitment, catch, yield, as well as mortality has to be calculated separately for females and males before being summed up. For details on the equations see the original report.
@@ -121,10 +125,55 @@ print(parameters)
 
 ## Simulation
 
-As this model was constructed to evaluate the fishing size limits implemented in Europe for this species, these were used for simulations and compared across a range of fishing rates F.
-Here are the fishing size limits (Pritchard et al. 2025):
+As this model was constructed to evaluate the fishing size limits implemented in Europe for this species, these were used for simulations and compared across a range of fishing rates F. Here are the fishing size limits (Pritchard et al. 2025):
+
 ```{r fihsing size limits, echo=FALSE}
 print(size_limits)
 ```
 
-It shortly introduces the reasons why this model is built as it is based on the model species' particularities, then goes over its construction and functioning, and details the results.
+The fishing size limits were introduced under a range of fishing mortality rates 0.5-1 for 500 years after the burn-in period. In order to compare the sustainability of the size limits, population size, catch and yield after 500 years under the different size limits were compared across varying fishing mortality rates F.
+
+## Results
+
+### Population size
+
+```{r,echo=FALSE}
+(popsize_plot)
+
+```
+
+Under the current size limits, it appears that the Ballan wrasse populations are very sensitive, and already crash at low fishing mortality rates. While the chosen theoretical fishing sizes do not prevent a population crash at fishing rates superior to 0.9, it allows for more resilience that current fishing sizes.
+
+### Catch
+
+```{r, echo=FALSE}
+(catch_plot_plot)
+```
+
+The maximum catch is similar between all size limits, however, the maximum catch is reached at higher fishing mortality rate under the theoretical size limit. While the maximum catches with current size limits are similar to the one under the theoretical size limit, the peaks happen at very low fishing mortality rate and crash earlier.
+
+### Yield
+
+```{r, echo=FALSE}
+(yield_plot_plot)
+```
+
+Because a higher theoretical size limit allows to catch bigger fish, the maximum yield of the theoretical size limit is much higher than the yield under current size limits.
+
+## Discussion
+
+It appears that under current size limits, Ballan wrasse populations would likely crash in the long term, even under light fishing mortality rates. While higher size limits protects populations a bit more, it still does not fully protect populations at moderate fishing rates. That might be attributed to the protogynous and haremic nature of the species, making males more scarce and more vulnerable to fishing.
+
+While higher fishing size limits would allow for more protection of the fished populations, it might not align with the purpose of Ballan wrasses on the market, as this species is mainly fished to be used against salmon lice in salmon fisheries.
+
+## Model limits and differences from original
+
+**Differences between models**
+
+Compared to the original model, this model used the correct version of the recruitment function, using fertilized eggs per recruit, instead of fertilized eggs per females. It also uses a fixed phi0 instead of a phi0 recalculated every year. This specific change could be the cause of the difference in sustainability observed with the theoretical size limit between the two models.
+
+**Model limits**
+
+Like the previous model, this model uses age-classes and doesn't have a maturity ogive. The use of age-classes and of a maturity ogive could allow for the model to be more realistic, therefore allowing more trusted results than those obtained at this stage.
+
+**For the references, please see the original report.**

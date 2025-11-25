@@ -1,0 +1,255 @@
+    ## Warning: le package 'ggplot2' a été compilé avec la version R 4.5.2
+
+## Introduction
+
+This age-class model was built to reproduce a biologically realistic
+Ballan wrasse population.
+
+The Ballan wrasse is a protogynous hermaphroditic fish species that has
+a haremic social system, with one male for multiple females. All
+individuals are born females and join a harem once they attain
+reproductive age. It appears that when the male of the harem dies, the
+oldest or biggest females are the ones to transition to become male.
+Because of this particularity, the population also presents a skewed sex
+ratio, with somewhere around 20% of the population being male.
+
+this model was adapted to account for these particularities, using
+published equations and data.
+
+## Adaptations
+
+### Growth
+
+Because only the biggest females transition to become males, there are
+two different Von Bertalanffy curves for males and females. The
+parameters for these were taken from Leclerq et al. (2014). Here are the
+two curves:
+
+![](Walkthrough_files/figure-markdown_strict/VB-1.png)
+
+While the parameters for the body allometry do not change between males
+and females, because the VB curve does, the output at age is also
+different:
+
+![](Walkthrough_files/figure-markdown_strict/body_allometry-1.png)
+
+Note: Here it appears that males are born already quite heavy, but since
+no individuals are directly born as males, this is actually fine.
+
+Because of these differences in length and weight, all following
+equations that use either of those variables were calculated separately
+for males and females.
+
+### Sex change
+
+As sex change seems to depend on sex ratio and size for the species, I
+decided to go with an equation that uses the relative size rule
+(difference from the average size) to dictate sex change, so that once
+an individual is a certain size above average, it becomes male. This
+equation was taken from Alonzo & Mangel (2005):
+
+$P\_c(L)=\frac{1}{1+exp(-b(L-(L\_i+\Delta L\_c)))}$,
+
+Where *L*<sub>*i*</sub> is the average size in the population,
+*Δ**L*<sub>*c*</sub> is the difference above the mean at which the
+probability of undergoing sex change equals 0.5, and *b* is a shape
+parameter. Then, individual count equations were modified to account for
+newly transitioned individuals:
+
+*N*<sub>*F*, *a* + 1, *t* + 1</sub> = (*N*<sub>*F*, *a*, *t*</sub> − *N*<sub>*F*, *a*, *t*</sub> \* *P*<sub>*c*</sub>(*L*<sub>*F*, *a*</sub>))*e*<sup>−*Z*<sub>*a*</sub></sup>
+and
+*N*<sub>*M*, *a* + 1, *t* + 1</sub> = (*N*<sub>*M*, *a*, *t*</sub> + *N*<sub>*F*, *a*, *t*</sub> \* *P*<sub>*c*</sub>(*L*<sub>*F*, *a*</sub>))*e*<sup>−*Z*<sub>*a*</sub></sup>,
+
+So that the number of females at age+1 the next year equals the number
+of females at age this year minus the transitioning females, and the
+number of males at age+1 next year equals the number of males at age
+this year plus the transitioned males. for both equations, mortality is
+accounted for after sex change.
+
+Once implemented in a stable population, this sex change equation makes
+the age and sex specific individual counts look like this:
+
+![](Walkthrough_files/figure-markdown_strict/sex%20change-1.png)
+
+Which allows for a male ratio of
+
+    ## [1] 0.2837438
+
+Which is in the upper realistic range for this species.
+
+### Reproduction
+
+Because this species is protogynous, high fishing recruitment could lead
+to make depletion, leading to a population crash, even though the number
+of individuals in the population stays elevated. Therefore, the
+recruitment calculation needs to account for potential male depletion,
+which a classical recruitment function based on spawner stock like
+Beverton-Holt or Ricker cannot do.
+
+Therefore, I decided to go with a recruitment function modified from
+Beverton-Holt and based on fertilized eggs counts, from Brooks et
+al. (2008):
+
+$R(\psi)=\frac{4hR\_0\psi}{R\_0\phi \_0(1-h)+(5h-1)\psi}$
+
+Where *ϕ*<sub>0</sub> is the number of fertilized eggs per recruit in
+the unfished stable population, *R*<sub>0</sub> is the unfished
+recruitment, which can also be interpreted as the maximum population
+size, and *h* is a measure of steepness.
+
+Using fertilized egg counts allows to take into account the
+fertilization rate, which will be dependent on the difference between
+the current male ratio and the male ratio in a stable population. For
+more detailed information on the equations used for recruitment, please
+refer to the original report.
+
+Here is the resulting population growth when we start the simulation,
+followed by population maintenance, with forced recruitment equal to R0
+during the burn-in (aka, the initialization period needed to reach a
+stable population).
+
+![](Walkthrough_files/figure-markdown_strict/pop_growth-1.png)
+
+**Note:** the burn-in length was originally set this high because the
+original model was a colonization model, so it took longer to stabilize.
+I then realised it was better to start the model without a realistic
+colonization event. The burn-in period was not adjusted after this, but
+I expect the impact to be minimal on the results.
+
+### Fishing recuitment, catch and yield
+
+Because we have males and females of different sizes, fishing
+recruitment, catch, yield, as well as mortality has to be calculated
+separately for females and males before being summed up. For details on
+the equations see the original report.
+
+## Parametrization
+
+To make the model function, I needed to find data for Von Bertalanffy,
+body allometry, and fecundity equations. These were obtained from two
+studies of Ballan wrasse conducted by Leclerq et al. (2014) and
+Villegas-Rios et al. (2014). Other parameters were either estimated
+through iteration or assumed:
+
+    ##     symbol      value
+    ## 1       N0  3.000e+01
+    ## 2        M  2.000e-01
+    ## 3    LinfF  3.544e+02
+    ## 4       KF  2.140e-01
+    ## 5      t0F -9.800e-01
+    ## 6    LinfM  3.666e+02
+    ## 7       KM  2.440e-01
+    ## 8      t0M -3.190e+00
+    ## 9   alpha0  9.310e-03
+    ## 10  alpha1  3.146e+00
+    ## 11       b  1.000e-01
+    ## 12 deltaLC  1.250e+02
+    ## 13   beta0  1.170e-01
+    ## 14   beta1  9.563e+00
+    ## 15       K  5.000e-01
+    ## 16      R0  1.000e+06
+    ## 17       h  4.000e-01
+    ## 18      mu  1.000e+01
+    ##                                                                      description
+    ## 1                                                initial population size, chosen
+    ## 2                                                natural mortality rate, assumed
+    ## 3                      VB asymptotic body length of females, Leclerq et al. 2014
+    ## 4                          VB growth coefficient of females, leclerq et al. 2014
+    ## 5                                 VB initial age of females, leclerq et al. 2014
+    ## 6                        VB asymptotic body length of males, Leclerq et al. 2014
+    ## 7                            VB growth coefficient of males, Leclerq et al. 2014
+    ## 8                                      VB initial age males, Leclerq et al. 2014
+    ## 9                                   body allometry constant, Leclerq et al. 2014
+    ## 10                                  body allometry exponent, Leclerq et al. 2014
+    ## 11                       sex change shape parameter, estimated through iteration
+    ## 12 difference from the mean size at which Pc(L)=0.5, estimated through iteration
+    ## 13                               fecundity multiplier, Villegas-Rios et al. 2014
+    ## 14                                 fecundity constant, Villegas-Rios et al. 2014
+    ## 15                                              fertilization steepness, assumed
+    ## 16                                                  unfished recruitment, chosen
+    ## 17                                          stock recruitment steepness, assumed
+    ## 18                                                 size limit precision, assumed
+
+## Simulation
+
+As this model was constructed to evaluate the fishing size limits
+implemented in Europe for this species, these were used for simulations
+and compared across a range of fishing rates F. Here are the fishing
+size limits (Pritchard et al. 2025):
+
+    ##                        location Lmin Lmax
+    ## 1 England Devon and Severn IFCA  180  260
+    ## 2                        Norway  220  280
+    ## 3                      Scotland  120  240
+    ## 4                        Sweden  150  300
+    ## 5                   theoretical  290  350
+
+The fishing size limits were introduced under a range of fishing
+mortality rates 0.5-1 for 500 years after the burn-in period. In order
+to compare the sustainability of the size limits, population size, catch
+and yield after 500 years under the different size limits were compared
+across varying fishing mortality rates F.
+
+## Results
+
+### Population size
+
+![](Walkthrough_files/figure-markdown_strict/unnamed-chunk-1-1.png)
+
+Under the current size limits, it appears that the Ballan wrasse
+populations are very sensitive, and already crash at low fishing
+mortality rates. While the chosen theoretical fishing sizes do not
+prevent a population crash at fishing rates superior to 0.9, it allows
+for more resilience that current fishing sizes.
+
+### Catch
+
+![](Walkthrough_files/figure-markdown_strict/unnamed-chunk-2-1.png)
+
+The maximum catch is similar between all size limits, however, the
+maximum catch is reached at higher fishing mortality rate under the
+theoretical size limit. While the maximum catches with current size
+limits are similar to the one under the theoretical size limit, the
+peaks happen at very low fishing mortality rate and crash earlier.
+
+### Yield
+
+![](Walkthrough_files/figure-markdown_strict/unnamed-chunk-3-1.png)
+
+Because a higher theoretical size limit allows to catch bigger fish, the
+maximum yield of the theoretical size limit is much higher than the
+yield under current size limits.
+
+## Discussion
+
+It appears that under current size limits, Ballan wrasse populations
+would likely crash in the long term, even under light fishing mortality
+rates. While higher size limits protects populations a bit more, it
+still does not fully protect populations at moderate fishing rates. That
+might be attributed to the protogynous and haremic nature of the
+species, making males more scarce and more vulnerable to fishing.
+
+While higher fishing size limits would allow for more protection of the
+fished populations, it might not align with the purpose of Ballan
+wrasses on the market, as this species is mainly fished to be used
+against salmon lice in salmon fisheries.
+
+## Model limits and differences from original
+
+**Differences between models**
+
+Compared to the original model, this model used the correct version of
+the recruitment function, using fertilized eggs per recruit, instead of
+fertilized eggs per females. It also uses a fixed phi0 instead of a phi0
+recalculated every year. This specific change could be the cause of the
+difference in sustainability observed with the theoretical size limit
+between the two models.
+
+**Model limits**
+
+Like the previous model, this model uses age-classes and doesn’t have a
+maturity ogive. The use of age-classes and of a maturity ogive could
+allow for the model to be more realistic, therefore allowing more
+trusted results than those obtained at this stage.
+
+**For the references, please see the original report.**
